@@ -52,12 +52,10 @@ class NativeReferenceHolder {
       _referenceBuffer = calloc<IntPtr>(kReferenceBufferSize);
       final address = _referenceBuffer.address;
       await _file.write_(address.toString());
-      print('$kTag Allocated $address');
     } else {
       // Locate reference buffer.
       final address = int.parse((await _file.readAsString_())!);
       _referenceBuffer = Pointer<IntPtr>.fromAddress(address);
-      print('$kTag Located $address');
     }
 
     final references = <Pointer<Void>>[];
