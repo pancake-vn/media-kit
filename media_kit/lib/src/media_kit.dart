@@ -20,20 +20,35 @@ abstract class MediaKit {
   static bool _initialized = false;
 
   /// {@macro media_kit}
-  static void ensureInitialized({String? libmpv}) {
+  ///
+  /// In debug mode, [Pointer<mpv_handle>]s are registered in a buffer shared by
+  /// every isolate in the process, so that a hot-restart can quit the ones the
+  /// previous run leaked. Pass [hotRestartCleanup] as `false` from any isolate
+  /// that is *not* the process's primary Flutter engine — an additional engine
+  /// (e.g. a secondary desktop window) resets these statics without resetting
+  /// the buffer, so it would otherwise mistake the primary engine's live
+  /// handles for leaked ones and quit them. Such an isolate still gets a fully
+  /// working libmpv; only its own leaked handles go unreclaimed on hot-restart.
+  static void ensureInitialized(
+      {String? libmpv, bool hotRestartCleanup = true}) {
     if (_initialized) return;
 
     try {
       if (UniversalPlatform.isWindows) {
-        nativeEnsureInitialized(libmpv: libmpv);
+        nativeEnsureInitialized(
+            libmpv: libmpv, hotRestartCleanup: hotRestartCleanup);
       } else if (UniversalPlatform.isLinux) {
-        nativeEnsureInitialized(libmpv: libmpv);
+        nativeEnsureInitialized(
+            libmpv: libmpv, hotRestartCleanup: hotRestartCleanup);
       } else if (UniversalPlatform.isMacOS) {
-        nativeEnsureInitialized(libmpv: libmpv);
+        nativeEnsureInitialized(
+            libmpv: libmpv, hotRestartCleanup: hotRestartCleanup);
       } else if (UniversalPlatform.isIOS) {
-        nativeEnsureInitialized(libmpv: libmpv);
+        nativeEnsureInitialized(
+            libmpv: libmpv, hotRestartCleanup: hotRestartCleanup);
       } else if (UniversalPlatform.isAndroid) {
-        nativeEnsureInitialized(libmpv: libmpv);
+        nativeEnsureInitialized(
+            libmpv: libmpv, hotRestartCleanup: hotRestartCleanup);
       } else if (UniversalPlatform.isWeb) {
         webEnsureInitialized(libmpv: libmpv);
       }

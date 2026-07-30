@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 
 import 'package:media_kit/src/player/platform_player.dart';
 
-void nativeEnsureInitialized({String? libmpv}) {}
+void nativeEnsureInitialized({String? libmpv, bool hotRestartCleanup = true}) {}
 
 class NativePlayer extends PlatformPlayer {
   NativePlayer({required super.configuration});

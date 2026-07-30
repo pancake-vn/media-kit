@@ -40,9 +40,10 @@ import 'package:media_kit/src/player/platform_player.dart';
 import 'package:media_kit/generated/libmpv/bindings.dart' as generated;
 
 /// Initializes the native backend for package:media_kit.
-void nativeEnsureInitialized({String? libmpv}) {
+void nativeEnsureInitialized({String? libmpv, bool hotRestartCleanup = true}) {
   AndroidHelper.ensureInitialized();
   NativeLibrary.ensureInitialized(libmpv: libmpv);
+  if (!hotRestartCleanup) return;
   NativeReferenceHolder.ensureInitialized((references) async {
     if (references.isEmpty) {
       return;
@@ -56,6 +57,12 @@ void nativeEnsureInitialized({String? libmpv}) {
     final cmd = 'quit'.toNativeUtf8();
     try {
       for (final reference in references) {
+        // These handles outlived the isolate that created them, so their wakeup
+        // callback still points at a [NativeCallable] the hot-restart deleted.
+        // Quitting makes libmpv emit events, which would invoke it and abort the
+        // process with "Callback invoked after it has been deleted" — clear it
+        // first, exactly as the regular dispose path does.
+        mpv.mpv_set_wakeup_callback(reference.cast(), nullptr, nullptr);
         mpv.mpv_command_string(reference.cast(), cmd.cast());
       }
     } finally {
