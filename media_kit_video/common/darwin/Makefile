@@ -3,8 +3,13 @@ HEADERS_DESTDIR_ESCAPED=$(subst $(SPACE),\ ,${HEADERS_DESTDIR})
 
 all: ${HEADERS_DESTDIR_ESCAPED}/mpv/*.h
 
-MPV_HEADERS_VERSION=v0.41.0
-MPV_HEADERS_SHA256SUM=ee21092a5ee427353392360929dc64645c54479aefdb5babc5cfbb5fad626209
+# Defaults match the macOS libmpv. A platform whose libmpv is older overrides these
+# from its podspec (iOS still ships libmpv-darwin-build v0.6.0, headers v0.36.0).
+MPV_HEADERS_VERSION?=v0.41.0
+MPV_HEADERS_SHA256SUM?=ee21092a5ee427353392360929dc64645c54479aefdb5babc5cfbb5fad626209
+# The header path inside the mpv tarball moved between 0.36 and 0.41.
+MPV_HEADERS_STRIP_COMPONENTS?=3
+MPV_HEADERS_GLOB?=mpv-*/include/mpv/*.h
 
 TAR=tar
 TAR_WILDCARDS_FLAG := $(shell ${TAR} --version 2>&1 | grep -q 'GNU' && echo "--wildcards" || echo "")
@@ -25,5 +30,5 @@ TAR_WILDCARDS_FLAG := $(shell ${TAR} --version 2>&1 | grep -q 'GNU' && echo "--w
 
 ${HEADERS_DESTDIR_ESCAPED}/mpv/*.h: .cache/headers/mpv.tar.gz
 	mkdir -p ${HEADERS_DESTDIR_ESCAPED}/mpv
-	${TAR} ${TAR_WILDCARDS_FLAG} -xvf .cache/headers/mpv.tar.gz --strip-components 3 -C ${HEADERS_DESTDIR_ESCAPED}/mpv/ 'mpv-*/include/mpv/*.h'
+	${TAR} ${TAR_WILDCARDS_FLAG} -xvf .cache/headers/mpv.tar.gz --strip-components ${MPV_HEADERS_STRIP_COMPONENTS} -C ${HEADERS_DESTDIR_ESCAPED}/mpv/ '${MPV_HEADERS_GLOB}'
 	touch ${HEADERS_DESTDIR_ESCAPED}/mpv/*.h
