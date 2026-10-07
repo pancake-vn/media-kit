@@ -7,9 +7,7 @@ require_relative '../common/darwin/Podspec/media_kit_utils.rb'
 
 Pod::Spec.new do |s|
   # Setup required files
-  # iOS still links libmpv v0.36-era xcframeworks (libmpv-darwin-build v0.6.0), so keep the
-  # matching headers. Bump together with media_kit_libs_ios_video.
-  system("make -C ../common/darwin HEADERS_DESTDIR=\"$(pwd)/Headers\" MPV_HEADERS_VERSION=v0.36.0 MPV_HEADERS_SHA256SUM=29abc44f8ebee013bb2f9fe14d80b30db19b534c679056e4851ceadf5a5e8bf6 MPV_HEADERS_STRIP_COMPONENTS=2 'MPV_HEADERS_GLOB=mpv-*/libmpv/*.h'")
+  system("make -C ../common/darwin HEADERS_DESTDIR=\"$(pwd)/Headers\"")
 
   # Initialize `MediaKitUtils`
   mku = MediaKitUtils.new(MediaKitUtils::Platform::IOS)
